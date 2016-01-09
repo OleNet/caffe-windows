@@ -78,14 +78,19 @@ void AccuracyLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       std::partial_sort(
           bottom_data_vector.begin(), bottom_data_vector.begin() + top_k_,
           bottom_data_vector.end(), std::greater<std::pair<Dtype, int> >());
+	  
+	  for (int j = 0; j < dim; ++j) { //xczhang change here!
+		  accuracy += sqrt((bottom_data[i * dim + j] - bottom_label[i * dim + j])*(bottom_data[i * dim + j] - bottom_label[i * dim + j]));
+	  }
+
       // check if true label is in top k predictions
-      for (int k = 0; k < top_k_; k++) {
-        if (bottom_data_vector[k].second == label_value) {
-          ++accuracy;
-          if (top.size() > 1) ++top[1]->mutable_cpu_data()[label_value];
-          break;
-        }
-      }
+      //for (int k = 0; k < top_k_; k++) {
+      //  if (bottom_data_vector[k].second == label_value) {
+      //    ++accuracy;
+      //    if (top.size() > 1) ++top[1]->mutable_cpu_data()[label_value];
+      //    break;
+      //  }
+      //}
       ++count;
     }
   }

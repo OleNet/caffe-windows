@@ -1,117 +1,16 @@
-## General
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.cuo
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-
-# Compiled protocol buffers
-*.pb.h
-*.pb.cc
-*_pb2.py
-
-# Compiled python
-*.pyc
-
-# Compiled MATLAB
-*.mex*
-
-# IPython notebook checkpoints
-.ipynb_checkpoints
-
-# Editor temporaries
-*.swp
-*~
-
-# Sublime Text settings
-*.sublime-workspace
-*.sublime-project
-
-# Eclipse Project settings
-*.*project
-.settings
-
-# QtCreator files
-*.user
-
-# OSX dir files
-.DS_Store
-
-## Caffe
-
-# User's build configuration
-Makefile.config
-
-# Data and models are either
-# 1. reference, and not casually committed
-# 2. custom, and live on their own unless they're deliberated contributed
-data/*
-*.caffemodel
-*.solverstate
-*.binaryproto
-*leveldb
-*lmdb
-
-# build, distribute, and bins (+ python proto bindings)
-.build_debug/*
-.build_release/*
-Release
-Debug
-x64
-distribute/*
-*.testbin
-*.bin
-python/caffe/proto/
-cmake_build
-.cmake_build
-3rdparty
-bin
-*.sdf
-*.opensdf
-*.pdb
-*.rar
-*.lib
-*.dll
-*.exp
-*.deps
-
-# Generated documentation
-docs/_site
-docs/gathered
-_site
-doxygen
-docs/dev
-
-# LevelDB files
-*.sst
-*.ldb
-LOCK
-LOG
-LOG.old
-CURRENT
-MANIFEST-*
-
-#google log
-*.INFO
-*.WARNING
-*.ERROR
-*.FATAL
-
-*.jpg
-*.bmp
-*.png
-
-3rdparty2013
-3rdparty2012
-
-Inceptionism
+/data/Blur1000/deprecated/test/*.BMP
+normal-blur-100.rar
+normal-blur-1000.rar
+Blur1000
+model.rar
+/bin
+/3rdparty
+/buildVS2013/caffelib/Release
+/log
+/buildVS2013/src/caffe/layers/*.deps
+/buildVS2013/compute_image_mean/Release
+/buildVS2013/convert_imageset/Release
+/buildVS2013/convert_mnist_data/Release
+/buildVS2013/MSVC/Release
+/buildVS2013/MSVCmex
+/buildVS2013/python/Release
