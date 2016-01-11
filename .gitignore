@@ -14,3 +14,12 @@ model.rar
 /buildVS2013/MSVC/Release
 /buildVS2013/MSVCmex
 /buildVS2013/python/Release
+/data/normal-blur-100.rar
+/data/normal-blur-1000.rar
+/data/model.rar
+/python/_temp
+/python/*.pyc
+/data
+/models/bvlc_alexnet-sur/201601102248
+/python/caffe/*.dll
+/buildVS2013/*.sdf

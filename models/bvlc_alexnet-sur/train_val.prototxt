@@ -5,7 +5,7 @@ layer {
    top: "y"
    hdf5_data_param {
      source: "D:\\Project\\caffe-windows-master\\data\\Blur1000\\test_h5_list.txt" 
-     batch_size: 32
+     batch_size: 50
    }
    include { phase:TRAIN }
  }
@@ -15,7 +15,7 @@ layer {
    top: "y"
    hdf5_data_param {
      source: "D:\\Project\\caffe-windows-master\\data\\Blur1000\\test_h5_list.txt" 
-     batch_size: 32
+     batch_size: 50
    }
    include { phase:TEST }
 }
