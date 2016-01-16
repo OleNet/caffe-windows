@@ -1,20 +1,39 @@
 import caffe
 import numpy as np
-
+import skimage.io as skio
+import img_mani
 
 caffe_root = './caffe'
 
-NET_FILE = 'D:/Project/caffe-windows-master/models/bvlc_alexnet-sur/train_val.prototxt'
-PARAM_FILE = 'D:/Project/caffe-windows-master/models/bvlc_alexnet-sur/alexnet_train201601102248_iter_194000.caffemodel'
-#img_path = 'D:/Project/caffe-windows-master/data/Blur1000/test/000000000217.BMP'
+NET_FILE = 'D:/Project/caffe-windows-master/models/bvlc_alexnet-sur/train_val-deploy.prototxt'
+PARAM_FILE = 'D:/Project/caffe-windows-master/models/bvlc_alexnet-sur/alexnet_train201601102248_iter_25000.caffemodel'
+img_path = 'D:/Project/caffe-windows-master/data/Blur1000/test/000000000217.BMP'
+SZ = 170
+
 
 caffe.set_mode_gpu()
 
-net = caffe.Classifier(NET_FILE, PARAM_FILE,
-               #channel_swap=(2,1,0),
-               channel_swap=(2,0,1),
-               raw_scale=255,
-               image_dims=(170, 170))
+net = caffe.Net(NET_FILE, PARAM_FILE, caffe.TEST)
+transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+transformer.set_transpose('data', (2, 0, 1))
+
+
+def predict(image_path):
+    net.blobs['data'].reshape(1, 3, SZ, SZ)
+    img = skio.imread(image_path)
+
+    net.blobs['data'].data[...] = transformer.preprocess('data', img/255.0)
+    out = net.forward()
+    print np.squeeze(out.values())
+
+    img = img_mani.filter_img(img)
+    skio.imshow(img)
+    skio.show()
+    net.blobs['data'].data[...] = transformer.preprocess('data', img)
+    out = net.forward()
+    print np.squeeze(out.values())
+    return np.squeeze(out.values())
+
 
 def caffe_predict(path):
         input_image = caffe.io.load_image(path)
@@ -36,4 +55,5 @@ def caffe_predict(path):
         return prediction[0].argmax(), proba, ind
 
 if __name__ == '__main__':
-    caffe_predict(img_path)
+    print predict(img_path)
+    #caffe_predict(img_path)

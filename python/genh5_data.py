@@ -6,45 +6,15 @@ import numpy as np
 import skimage.io as skio
 import img_mani
 import label_file_util as label_util
+import random
 
 ROOT = 'D:/Project/caffe-windows-master/data/Blur1500/'
-PHASE = 'train'
+PHASE = 'test'
 LABEL_FILE = 'D:/Project/caffe-windows-master/data/Blur1500/' + PHASE + '.proto'
 
 SIZE = 170 # fixed size to all images
-HD5SIZE = 500
+HD5SIZE = 800
 INI_VALUE = -1000
-
-'''import conf_pb2
-from google.protobuf import text_format
-def read_proto_file(file_path, parser_object):
-    file = open(file_path, "r")
-    text_format.Merge(str(file.read()), parser_object)
-    file.close()
-    return parser_object
-
-
-def get_name_score_from_proto(file_path):
-    app_config = conf_pb2.AppConfig()
-    read_proto_file(LABEL_FILE, app_config)
-    name = []
-    score = []
-    for f in app_config.filelist.file:
-        name.append(ROOT + os.sep + f.name)
-        score.append(f.gold_score)
-    return name, score
-
-
-def load_old_format_labelscore(file_path):
-    with open(file_path, 'r') as T:
-        lines = T.readlines()
-    img_path = []
-    score = []
-    for line in lines:
-        sp = line.split(' ')
-        img_path.append(ROOT + os.sep + sp[0])
-        score.append(float(sp[1]))
-    return img_path, score'''
 
 
 def swap_caffe_axies(narray):
@@ -72,18 +42,11 @@ def load_caffe_format_img(img_path):
     return caffe_format_img(img)
 
 
-'''def load_image_from_line(line):
-    sp = line.split(' ')
-    img_path = ROOT + os.sep + sp[0]
-    if not os.path.exists(img_path):
-        print 'file not exist {}'.format(img_path)
-        return False, False
-    img = load_caffe_format_img(img_path)
-    y = float(sp[1])
-    return img, y'''
-
-
-def write_XY_h5(h5name, X, y):
+def write_XY_h5(h5name, X, y, shuffle=False):
+    if shuffle:
+        randidx = np.random.permutation(X.shape[0])
+        X = X[randidx]
+        y = y[randidx]
     with h5py.File(h5name, 'w') as H:
         H.create_dataset('X', data=X)
         H.create_dataset('y', data=y)
@@ -116,14 +79,21 @@ def write_h5names(filename, h5name_list):
             L.write(name + '\n' ) # list all h5 files you are going to use
 
 
-def save_batch(name_seed, imgs):
+def save_batch(name_seed, imgs, additional_name_info=[]):
     temp_dir = './_temp/'
     if not os.path.exists(temp_dir):
         os.mkdir(temp_dir)
     name, _ = os.path.splitext(name_seed)
     for i, img in enumerate(imgs):
-        skio.imsave(temp_dir + os.sep + '{}-{}.bmp'.format(name, i), img)
+        skio.imsave(temp_dir + os.sep + additional_name_info + '-{}-{}.bmp'.format(name, i), img)
 
+
+def shuffleL1L2(a, b):
+    combined = zip(a, b)
+    random.shuffle(combined)
+
+    a[:], b[:] = zip(*combined)
+    return a, b
 
 def convert2h5data():
     Xs, ys = get_empty_XY()
@@ -133,9 +103,10 @@ def convert2h5data():
         file_list, score_list = label_util.load_old_format_labelscore(LABEL_FILE)
     if os.path.splitext(LABEL_FILE)[1] == '.proto':
         file_list, score_list = label_util.get_name_score_from_proto(LABEL_FILE)'''
-    file_list,score_list = label_util.load_gt_sep(LABEL_FILE)
-    np.random.shuffle(file_list)
-    np.random.shuffle(score_list)
+    file_list, score_list = label_util.load_gt_sep(LABEL_FILE)
+    file_list, score_list = shuffleL1L2(file_list, score_list)
+    #np.random.shuffle(file_list)
+    #np.random.shuffle(score_list)
 
     for path, y in zip(file_list, score_list):
         print 'processing ' + path
@@ -146,8 +117,8 @@ def convert2h5data():
         imgs = augment_img(img)
 
         dice = np.random.rand()
-        if dice > 0.9:
-            save_batch(os.path.split(path)[1], imgs)
+        if dice > 0.95:
+            save_batch(os.path.split(path)[1], imgs, additional_name_info=str(y))
 
         imgs = np.swapaxes(imgs, 1, 3)
         imgs = np.swapaxes(imgs, 2, 3)
@@ -157,12 +128,12 @@ def convert2h5data():
         ys = np.hstack([ys, y])
         count += 1
         if Xs.shape[0] >= HD5SIZE:
-            write_XY_h5(ROOT + os.sep + PHASE + str(count) + '.h5', Xs, ys)
+            write_XY_h5(ROOT + os.sep + PHASE + str(count) + '.h5', Xs, ys, shuffle=True)
             h5name_record.append(ROOT + os.sep + PHASE + str(count) + '.h5')
             Xs, ys = get_empty_XY()
 
     # in case number of last batch of X,y is smaller than HD5SIZE
-    write_XY_h5(ROOT + os.sep + PHASE + str(count) + '.h5', Xs, ys)
+    write_XY_h5(ROOT + os.sep + PHASE + str(count) + '.h5', Xs, ys, shuffle=True)
     h5name_record.append(ROOT + os.sep + PHASE + str(count) + '.h5')
     write_h5names(ROOT + os.sep + PHASE + '_h5_list.txt', h5name_record)
 
